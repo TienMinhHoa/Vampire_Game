@@ -135,6 +135,22 @@ void Game::update()
 	EnemyManager.refresh();
 	EnemyManager.update();
 
+	if (clock/1000 % 100 == 0)
+	{
+		while(itemManager.entities.size()<6)
+	{
+		std::string f;
+		if (itemManager.entities.size() % 3 == 0) f = "speed.png";
+		else if (itemManager.entities.size() % 3 == 1) f = "strength.png";
+		else f = "heart.png";
+		int a = rand() % 1000;
+		int b = rand() % 1000;
+		auto& item(itemManager.addEntity());
+		item.addComponent<TransformComponent>(a, b,32,32,1);
+		item.addComponent<SpriteComponent>(f.c_str(), 16, 16);
+		item.addComponent<ColliderComponent>(f.erase(f.find('.', 3)).c_str());
+	}
+	}
 	if (player.getComponent<exp_Of_player>().lvup)
 	{
 		player.getComponent<TransformComponent>().velocity.x = player.getComponent<TransformComponent>().veloc_of_map.x = 0;
@@ -285,13 +301,18 @@ void Game::update()
 				std::string tmp = itemManager.entities[i]->getComponent<ColliderComponent>().tag; //get the name of item
 				mp[tmp] = (clock / 1000) * 1000;//start the time of the affect of item
 
-				if (tmp == "lightning")
+				if (tmp == "speed")
 					player.getComponent<TransformComponent>().speed *= 1.5; //item lightning
 
-				else if (tmp == "heart")//item increase the spped of gun
+				else if (tmp == "strength")//item increase the spped of gun
 				{
 					player.getComponent<shot01>().reload = 500;
 					player.getComponent<shot01>().i = (clock) / 500 + 1;
+				}
+				else if (tmp == "heart")//item increase the spped of gun
+				{
+					int a = player.getComponent<LifeOfPlayer>().maxhp - player.getComponent<LifeOfPlayer>().hp;
+					player.getComponent<LifeOfPlayer>().hp += (a>30)?30:a;
 				}
 				else if (tmp == "exp")
 				{
@@ -315,14 +336,14 @@ void Game::update()
 		{
 			
 			std::string tmp = c.first;
-			if (tmp == "lightning")
+			if (tmp == "speed")
 			{
 				
 				player.getComponent<TransformComponent>().speed /= 1.5;
 				mp[tmp] = 100000000;
 				
 			}
-			else if (tmp == "heart")
+			else if (tmp == "strength")
 			{
 				player.getComponent<shot01>().reload = 1500;
 				player.getComponent<shot01>().i = (clock) / 1500+1;
@@ -332,6 +353,7 @@ void Game::update()
 	}
 	int power_Of_Enemy = player.getComponent<exp_Of_player>().getlv()*2;
 	int check = 0;
+	
 	for (int i = 0; i < EnemyManager.entities.size(); i++)
 	{
 		
@@ -366,11 +388,24 @@ void Game::Game_start()
 	file >> player.getComponent<LifeOfPlayer>().hp;
 	file >> player.getComponent<LifeOfPlayer>().life;
 	file.close();
+	player.getComponent<exp_Of_player>().lv = 1;
 	player.getComponent<LifeOfPlayer>().maxhp = player.getComponent<LifeOfPlayer>().hp;
+	player.getComponent<exp_Of_player>().maxExp = 100;
+	player.getComponent<exp_Of_player>().exp = 0;
+	std::cout << player.getComponent<Shot_02>().amount << " ";
 	Money += player.getComponent<Coin>().getCoin();
 	player.getComponent<Coin>().setCoin(0);
 	clock = 0;
-	while(itemManager.entities.size()<4)
+	player.getComponent<shot01>().i = 1;
+	for (int i = 0; i < EnemyManager.entities.size(); i++)
+	{
+		EnemyManager.entities[i]->destroy();
+	}
+	for (int i = 0; i < itemManager.entities.size(); i++)
+	{
+		itemManager.entities[i]->destroy();
+	}
+	/*while(itemManager.entities.size()<4)
 	{
 		std::string f;
 		if (itemManager.entities.size() % 2 == 0) f = "lightning.png";
@@ -381,7 +416,7 @@ void Game::Game_start()
 		item.addComponent<TransformComponent>(a, b);
 		item.addComponent<SpriteComponent>(f.c_str(), 32, 32);
 		item.addComponent<ColliderComponent>(f.erase(f.find('.', 3)).c_str());
-	}
+	}*/
 	player.getComponent<TransformComponent>().velocity.x = 0;
 	player.getComponent<TransformComponent>().velocity.y = 0;
 	player.getComponent<TransformComponent>().veloc_of_map.x = 0;
@@ -907,7 +942,7 @@ void Game::GameLose()
 	SDL_DestroyTexture(arrow);
 	if (event.type == SDL_KEYUP)
 	{
-		if (event.key.keysym.sym == SDLK_l)
+		if (event.key.keysym.sym == SDLK_j)
 		{
 			type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
 			if (type == Start)
@@ -928,7 +963,7 @@ void Game::GameLose()
 				}
 				rtime = 0;
 				clock = 0;
-				srand(time(0));
+				player.getComponent<shot01>().i = 1;
 				for (int i = 0; i < EnemyManager.entities.size(); i++)
 				{
 					EnemyManager.entities[i]->destroy();

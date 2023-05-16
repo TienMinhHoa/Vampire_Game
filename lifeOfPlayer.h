@@ -8,12 +8,16 @@ private:
 	SDL_Rect srcRect, desRect;
 	SDL_Texture* tex;
 	SDL_Texture* tex1;
+	
+	
 
 public:
+
 	int hp;
 	int maxhp;
 	bool loss_HP = 0;
 	int life;
+
 	LifeOfPlayer(int HP)
 	{
 		maxhp = hp = HP;
