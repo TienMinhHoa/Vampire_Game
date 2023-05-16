@@ -4,13 +4,14 @@
 #include"projectiles.h"
 #include"Collision.h"
 #include<cmath>
+#include<SDL_mixer.h>
 
 
 class shot01 : public Component
 {
 
 public:
-	
+	Mix_Chunk* sound = NULL;
 	int reload = 1500;//time to reload the bullet
 	TransformComponent* transform;
 	SpriteComponent* sprites;
@@ -26,6 +27,8 @@ public:
 	{
 		sprites = &entity->getComponent<SpriteComponent>();
 		transform = &entity->getComponent<TransformComponent>();
+		sound = Mix_LoadWAV("sound/VS_Projectile_v06-02.ogg");
+		if (sound == NULL) std::cout << "NULL";
 	}
 
 	void update() override
@@ -60,6 +63,10 @@ public:
 		
 		for (auto& c : projectiles)
 		{
+			if (c->des.x == transform->position.x+30)
+			{
+				Mix_PlayChannel(-1, sound, 0);
+			}
 			c->draw();
 			c->des.x += veloc * c->dir - transform->veloc_of_map.x*transform->speed;
 			c->des.y -= transform->veloc_of_map.y * transform->speed;

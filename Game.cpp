@@ -27,6 +27,15 @@ bool Game::isRunning;
 int Game::timer;
 int Game::clock;
 int  Money;
+bool upgrade_sound = 0;
+bool start_music = 0;
+bool Die = 0;
+Mix_Chunk* Up_lv = NULL;
+Mix_Music* bg_music = NULL;
+Mix_Chunk* hit = NULL;
+Mix_Chunk* die = NULL;
+Mix_Chunk* pick_up = NULL;
+Mix_Chunk* confirm = NULL;
 
 Game::Game()
 {};
@@ -67,6 +76,11 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, in
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 			std::cout << "renderer created" << std::endl;
 		}
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+		{
+			printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+		}
+
 		isRunning = 1;
 		map = new Map("final_map.txt");
 		
@@ -118,6 +132,13 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, in
 
 		read = 0;
 		
+		
+		Up_lv = Mix_LoadWAV("sound/lvup.ogg");
+		bg_music = Mix_LoadMUS("sound/VS_Music_v04-01.ogg");
+		hit = Mix_LoadWAV("sound/VS_EnemyHit_v06-02.ogg");
+		die = Mix_LoadWAV("sound/VS_GameOver_v02-01.ogg");
+		pick_up = Mix_LoadWAV("sound/sfx_coin_double4.ogg");
+		confirm = Mix_LoadWAV("sound/sfx_sounds_pause7_out.ogg");
 	}
 	else {
 		isRunning = 0;
@@ -134,7 +155,6 @@ void Game::update()
 	itemManager.update();
 	EnemyManager.refresh();
 	EnemyManager.update();
-
 	if (clock/1000 % 100 == 0)
 	{
 		while(itemManager.entities.size()<6)
@@ -298,6 +318,7 @@ void Game::update()
 			itemManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(0.3*a, b*0.3));
 			if (Collision::AABB(itemManager.entities[i]->getComponent<ColliderComponent>().rec, player.getComponent<ColliderComponent>().rec))
 			{
+				Mix_PlayChannel(-1, pick_up, 0);
 				std::string tmp = itemManager.entities[i]->getComponent<ColliderComponent>().tag; //get the name of item
 				mp[tmp] = (clock / 1000) * 1000;//start the time of the affect of item
 
@@ -317,6 +338,7 @@ void Game::update()
 				else if (tmp == "exp")
 				{
 					player.getComponent<exp_Of_player>().up();
+					
 				}
 				else if (tmp == "coin")
 				{
@@ -359,7 +381,7 @@ void Game::update()
 		
 		if (Collision::AABB(player.getComponent<ColliderComponent>().rec, EnemyManager.entities[i]->getComponent<ColliderComponent>().rec))
 		{
-
+			Mix_PlayChannel(-1, hit, 0);
 			player.getComponent<LifeOfPlayer>().loss_HP = 1;
 			check = clock;
 			player.getComponent<LifeOfPlayer>().hp -= power_Of_Enemy;
@@ -370,7 +392,10 @@ void Game::update()
 				player.getComponent<LifeOfPlayer>().life--;
 			}
 		}
-		if(clock - check > 50) player.getComponent<LifeOfPlayer>().loss_HP = 0;
+		if (clock - check > 50)
+		{
+			player.getComponent<LifeOfPlayer>().loss_HP = 0;
+		}
 	}
 	
 	
@@ -379,6 +404,11 @@ void Game::update()
 
 void Game::Game_start()
 {
+	if (start_music == 0)
+	{
+		Mix_PlayMusic(bg_music, -1);
+		start_music = 1;
+	}
 	std::fstream file("saved.txt");
 
 	file >> Money;
@@ -506,6 +536,7 @@ void Game::Game_start()
 
 	if (event.type == SDL_KEYUP)
 	{
+		
 		switch (event.key.keysym.sym)
 		{
 		case SDLK_LEFT:
@@ -515,6 +546,8 @@ void Game::Game_start()
 			j++;
 			break;
 		case SDLK_j:
+			start_music = 0;
+			Mix_HaltMusic();
 			if (j % 3 == 1)
 			{
 				type = Running;
@@ -534,6 +567,15 @@ void Game::Game_start()
 
 void Game:: upgrade()
 {
+	player.getComponent<TransformComponent>().velocity.x = 0;
+	player.getComponent<TransformComponent>().velocity.y = 0;
+	player.getComponent<TransformComponent>().veloc_of_map.x = 0;
+	player.getComponent<TransformComponent>().veloc_of_map.y = 0;
+	if (upgrade_sound == 0)
+	{
+		Mix_PlayChannel(-1, Up_lv, 0);
+		upgrade_sound = 1;
+	}
 	SDL_Color color1 = { 56,255,100 };
 	SDL_Color color2 = { 56,255,100 };
 	SDL_Color color3 = { 56,255,100 };
@@ -563,6 +605,8 @@ void Game:: upgrade()
 		color1 = { 56,255,100 };
 		if (event.type == SDL_MOUSEBUTTONUP && event.button.clicks == 1)
 		{
+			Mix_PlayChannel(-1, confirm, 0);
+			upgrade_sound = 0;
 			switch (i%6)
 			{
 			case 0:
@@ -609,6 +653,8 @@ void Game:: upgrade()
 
 		if (event.type == SDL_MOUSEBUTTONUP&&event.button.clicks == 1)
 		{
+			Mix_PlayChannel(-1, confirm, 0);
+			upgrade_sound = 0;
 			switch ((i+1)%6)
 			{
 			case 0:
@@ -652,6 +698,8 @@ void Game:: upgrade()
 		color3 = { 56,255,100 };
 		if (event.type == SDL_MOUSEBUTTONUP && event.button.clicks == 1)
 		{
+			Mix_PlayChannel(-1, confirm, 0);
+			upgrade_sound = 0;
 			switch ((i+2)%6)
 			{
 			case 0:
@@ -720,6 +768,7 @@ void Game:: upgrade()
 }
 void Game::store()
 {
+
 	player.getComponent<Coin>().setCoin(Money);
 	SDL_Color col_card = { rtime % 255,255,rtime % 255 };
 	SDL_Texture* card= texturemanager::LoadTexture("UI/Card X5.png");
@@ -770,6 +819,7 @@ void Game::store()
 			{
 				if (player.getComponent<Coin>().getCoin() > 50)
 				{
+					Mix_PlayChannel(-1, confirm, 0);
 					Card = { 200,200,0,0 };
 					player.getComponent<LifeOfPlayer>().maxhp *= 1.3;
 					player.getComponent<Coin>().getPrice(50);
@@ -787,6 +837,7 @@ void Game::store()
 			{
 				if (player.getComponent<Coin>().getCoin() > 75)
 				{
+					Mix_PlayChannel(-1, confirm, 0);
 					Card = { 200,200,0,0 };
 					player.getComponent<TransformComponent>().speed *= 1.3;
 					player.getComponent<Coin>().getPrice(50);
@@ -800,6 +851,7 @@ void Game::store()
 			{
 				if (player.getComponent<Coin>().getCoin() > 500)
 				{
+					Mix_PlayChannel(-1, confirm, 0);
 					Card = { 200,200,0,0 };
 					player.getComponent<LifeOfPlayer>().life++;
 					player.getComponent<Coin>().getPrice(500);
@@ -811,6 +863,7 @@ void Game::store()
 			}
 			case 3:
 			{
+				Mix_PlayChannel(-1, confirm, 0);
 				if (player.getComponent<Coin>().getCoin() > 500)
 				{
 					Card = { 200,200,0,0 };
@@ -836,6 +889,7 @@ void Game::store()
 			}
 			case 4:
 			{
+				Mix_PlayChannel(-1, confirm, 0);
 				if (player.getComponent<Coin>().getCoin() > 500)
 				{
 					Card = { 200,200,200,0 };
@@ -854,6 +908,7 @@ void Game::store()
 			}
 			case 5:
 			{
+				Mix_PlayChannel(-1, confirm, 0);
 				if (player.getComponent<Coin>().getCoin() > 500)
 				{
 					Card = { 200,200,200,0};
@@ -912,6 +967,16 @@ void Game::store()
 }
 void Game::GameLose()
 {
+	SDL_Color color = { 255,255,255 };
+	player.getComponent<TransformComponent>().velocity.x = 0;
+	player.getComponent<TransformComponent>().velocity.y = 0;
+	player.getComponent<TransformComponent>().veloc_of_map.x = 0;
+	player.getComponent<TransformComponent>().veloc_of_map.y = 0;
+	if (Die == 0)
+	{
+		Mix_PlayChannel(-1, die, 0);
+		Die = 1;
+	}
 	
 	std::map<int, std::string> mp;
 	mp[0] = "UI/arrow_01.png";
@@ -925,7 +990,9 @@ void Game::GameLose()
 	Right_arrow = { 705,540,64,64 };
 	SDL_Texture* tex2 = texturemanager::LoadTexture("UI/Game_over.png");
 	SDL_Texture* tex3;
-	SDL_Color color = { 255,255,255 };
+	SDL_Texture* point = texturemanager::LoadTextureFromFont("fonts/KO.ttf", color, "Score: " + std::to_string(clock));
+	SDL_Rect Point = { 590,650,count(clock)*20,30};
+
 	SDL_RenderCopy(Game::renderer, tex2, NULL, NULL);
 	SDL_Rect des = { 570,550,100,30 };
 	if (player.getComponent<LifeOfPlayer>().life > 0)
@@ -937,13 +1004,17 @@ void Game::GameLose()
 	SDL_RenderCopyEx(renderer, arrow, NULL, &Left_arrow, NULL, NULL, SDL_FLIP_NONE);
 	SDL_RenderCopyEx(renderer, arrow, NULL, &Right_arrow, NULL, NULL, SDL_FLIP_HORIZONTAL);
 	SDL_RenderCopy(renderer, tex3, NULL, &des);
+	if(player.getComponent<LifeOfPlayer>().life <= 0)
+	SDL_RenderCopy(renderer, point, NULL, &Point);
 	SDL_RenderPresent(Game::renderer);
 	SDL_DestroyTexture(tex2);
 	SDL_DestroyTexture(arrow);
+	SDL_DestroyTexture(point);
 	if (event.type == SDL_KEYUP)
 	{
 		if (event.key.keysym.sym == SDLK_j)
 		{
+			Die = 0;
 			type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
 			if (type == Start)
 			{
@@ -1075,7 +1146,8 @@ void Game::HandleEvent() {
 		{
 			type = Start;
 		}
-		if (event.key.keysym.sym == SDLK_p&&type == Running)
+		
+		else if (event.key.keysym.sym == SDLK_p&&type == Running)
 		{
 			type = Pause;
 		}
