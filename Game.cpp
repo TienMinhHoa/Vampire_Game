@@ -238,7 +238,7 @@ void Game::update()
 		{
 			EnemyManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(a * 0.001, -player.getComponent<TransformComponent>().veloc_of_map.y * speed));
 		}
-		if (!Collision::AABB(player.getComponent<ColliderComponent>().rec, EnemyManager.entities[i]->getComponent<ColliderComponent>().rec) && abs(a) > 30 && abs(b) > 10)
+		if (!Collision::AABB(player.getComponent<ColliderComponent>().rec, EnemyManager.entities[i]->getComponent<ColliderComponent>().rec) && abs(int(a)) > 30 && abs(int(b)) > 10)
 			EnemyManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(pow(-1, left) * 2, pow(-1, left) * tmp * 2));
 		else
 		{
