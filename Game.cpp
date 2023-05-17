@@ -775,7 +775,7 @@ void Game::store()
 	SDL_Rect Card,tCard;
 	SDL_Texture* textCard = texturemanager::LoadTextureFromFont("fonts/KO.ttf", col_card, "Not enough Money");
 	SDL_Texture* coin = texturemanager::LoadTextureFromFont("fonts/KO.ttf", col_card,"Coin: " + std::to_string(player.getComponent<Coin>().getCoin()));
-	SDL_Rect money = { 575,600,100,30 };
+	SDL_Rect money = { 575,500,100,30 };
 	int x, y;
 	Uint32 mousestate = SDL_GetMouseState(&x, &y);
 	SDL_Texture* tex = texturemanager::LoadTexture("store_photo/storeRage.png");
@@ -949,7 +949,7 @@ void Game::store()
 		Card = { 500,400,200,100 };
 	}
 	 
-		SDL_Rect des = { 0,720,1280,180 };
+		SDL_Rect des = { 0,620,1280,180 };
 		SDL_Texture* tex1 = texturemanager::LoadTexture(Store_Of_Game[int(i % 6)].c_str());
 		SDL_RenderCopy(renderer, tex1, NULL, &des);
 		SDL_RenderCopy(renderer, card, NULL, &Card);
