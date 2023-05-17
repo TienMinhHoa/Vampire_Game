@@ -459,11 +459,11 @@ void Game::Game_start()
 	Start_des = { 560,560,150,40 };
 	Powerup_rec = { 530,660,200,50 };
 	Quit_des = { 115,37,120,35 };
-	SDL_Rect Coin_rec = { 600,37,20*count(Money),30};
-	SDL_Texture* tex_Start = texturemanager::LoadTextureFromFont("fonts/ANY.ttf",color, "START");
-	SDL_Texture* tex_Quit = texturemanager::LoadTextureFromFont("fonts/ANY.ttf",color, "QUIT");
-	SDL_Texture* tex_Powerup = texturemanager::LoadTextureFromFont("fonts/ANY.ttf",color, "POWER UP");
-	SDL_Texture* tex_Coin = texturemanager::LoadTextureFromFont("fonts/ANY.ttf",color, std::to_string(Money));
+	SDL_Rect Coin_rec = { 600,27,20*count(Money),30};
+	SDL_Texture* tex_Start = texturemanager::LoadTextureFromFont("fonts/KO.ttf",color, "START");
+	SDL_Texture* tex_Quit = texturemanager::LoadTextureFromFont("fonts/KO.ttf",color, "QUIT");
+	SDL_Texture* tex_Powerup = texturemanager::LoadTextureFromFont("fonts/KO.ttf",color, "POWER UP");
+	SDL_Texture* tex_Coin = texturemanager::LoadTextureFromFont("fonts/KO.ttf",color, std::to_string(Money));
 	start.x = 530;
 	start.y = 550;
 	start.w = 200;
@@ -986,15 +986,15 @@ void Game::GameLose()
 	mp[4] = "UI/arrow_05.png";
 	SDL_Rect Left_arrow;
 	SDL_Rect Right_arrow;
-	Left_arrow = { 480,540,64,64 };
-	Right_arrow = { 705,540,64,64 };
+	Left_arrow = { 480,480,64,64 };
+	Right_arrow = { 705,480,64,64 };
 	SDL_Texture* tex2 = texturemanager::LoadTexture("UI/Game_over.png");
 	SDL_Texture* tex3;
 	SDL_Texture* point = texturemanager::LoadTextureFromFont("fonts/KO.ttf", color, "Score: " + std::to_string(clock));
-	SDL_Rect Point = { 590,650,count(clock)*20,30};
+	SDL_Rect Point = { 570,550,count(clock)*20,30};
 
 	SDL_RenderCopy(Game::renderer, tex2, NULL, NULL);
-	SDL_Rect des = { 570,550,100,30 };
+	SDL_Rect des = { 570,485,100,30 };
 	if (player.getComponent<LifeOfPlayer>().life > 0)
 	{
 		tex3 = texturemanager::LoadTextureFromFont("fonts/KO.ttf", color, "Respawn");
@@ -1175,7 +1175,15 @@ void Game::clean()
 {
 	SDL_DestroyWindow(gWindow);
 	SDL_DestroyRenderer(renderer);
+	Mix_FreeChunk(hit);
+	Mix_FreeChunk(die);
+	Mix_FreeChunk(pick_up);
+	Mix_FreeChunk(confirm);
+	Mix_FreeMusic(bg_music);
+
+	Mix_Quit();
 	TTF_Quit();
+
 	SDL_Quit();
 }
 

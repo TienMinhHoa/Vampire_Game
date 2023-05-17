@@ -22,6 +22,10 @@ public:
 	int damage = 30;
 	
 	shot01() = default;
+	~shot01()
+	{
+		Mix_FreeChunk(sound);
+	}
 
 	void init() override
 	{

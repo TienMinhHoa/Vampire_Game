@@ -50,7 +50,7 @@ public:
 		}
 		else if (Game::event.type == SDL_KEYDOWN || keyboadstate[SDL_SCANCODE_A] || keyboadstate[SDL_SCANCODE_D] || keyboadstate[SDL_SCANCODE_W] || keyboadstate[SDL_SCANCODE_S]) {
 			sprite->animated = 1;
-			if (transform->position.y < 10 || transform->position.y>850) transform->velocity.y = 0;
+			if (transform->position.y < 10 || transform->position.y>750) transform->velocity.y = 0;
 			else  if (transform->velocity.y != 0 && transform->veloc_of_map.y == 0 && transform->position.y > 400)
 			{
 				transform->velocity.y = 0;
@@ -129,7 +129,7 @@ public:
 			{
 				if (transform->videomap.y >= 1400 || transform->position.y < 450)
 				{
-					if (transform->position.y > 850) transform->velocity.y = 0;
+					if (transform->position.y > 750) transform->velocity.y = 0;
 					else
 						transform->velocity.y = speed;
 					transform->veloc_of_map.y = 0;
