@@ -155,6 +155,9 @@ void Game::update()
 	itemManager.update();
 	EnemyManager.refresh();
 	EnemyManager.update();
+
+
+	//spawn the items in game
 	if (clock/1000 % 100 == 0)
 	{
 		while(itemManager.entities.size()<6)
@@ -171,6 +174,8 @@ void Game::update()
 		item.addComponent<ColliderComponent>(f.erase(f.find('.', 3)).c_str());
 	}
 	}
+
+	//ckeck if level of player up
 	if (player.getComponent<exp_Of_player>().lvup)
 	{
 		player.getComponent<TransformComponent>().velocity.x = player.getComponent<TransformComponent>().veloc_of_map.x = 0;
@@ -183,7 +188,7 @@ void Game::update()
 	}
 	saved = 0;
 
-	int speed = player.getComponent<TransformComponent>().speed;
+	int speed = player.getComponent<TransformComponent>().speed;//save in oreder to easy to access
 
 	// set the video map
 	float tmp1 =  map->delta_x = -(player.getComponent<TransformComponent>().videomap.x - 500);
@@ -230,8 +235,10 @@ void Game::update()
 		float a = (-EnemyManager.entities[i]->getComponent<TransformComponent>().position.x + px);
 		float b = (-EnemyManager.entities[i]->getComponent<TransformComponent>().position.y + py);
 		float tmp = b / a;
+		//check the method in transformation of enemies
 		if (player.getComponent<TransformComponent>().veloc_of_map.x != 0)
 		{
+			//if velocity of map != 0
 			EnemyManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(-player.getComponent<TransformComponent>().veloc_of_map.x * speed, b * 0.001));
 		}
 		if (player.getComponent<TransformComponent>().veloc_of_map.y != 0)
@@ -249,9 +256,9 @@ void Game::update()
 			if (Collision::AABB(player.getComponent<shot01>().projectiles[j]->des, EnemyManager.entities[i]->getComponent<ColliderComponent>().rec))
 			{
 
-				EnemyManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(100 * (left == 1 ? 1 : -1), 0));
-				player.getComponent<shot01>().projectiles[j]->coll = 1;
-				EnemyManager.entities[i]->getComponent<SpriteComponent>().animated = 1;
+				EnemyManager.entities[i]->getComponent<TransformComponent>().position.Add(Vector2D(100 * (left == 1 ? 1 : -1), 0)); //push back the enemies
+				player.getComponent<shot01>().projectiles[j]->coll = 1;//check the collision of bullet
+				/*EnemyManager.entities[i]->getComponent<SpriteComponent>().animated = 1;*/
 				EnemyManager.entities[i]->getComponent<LifeOfEntiy>().hp -= player.getComponent<shot01>().damage;
 				EnemyManager.entities[i]->getComponent<SpriteComponent>().srcRect.x = 96 * 6;
 
@@ -385,12 +392,7 @@ void Game::update()
 			player.getComponent<LifeOfPlayer>().loss_HP = 1;
 			check = clock;
 			player.getComponent<LifeOfPlayer>().hp -= power_Of_Enemy;
-			if (player.getComponent<LifeOfPlayer>().hp <= 0)
-			{
-				type = Lose;
-				player.getComponent<LifeOfPlayer>().hp = 100;
-				player.getComponent<LifeOfPlayer>().life--;
-			}
+			
 		}
 		if (clock - check > 50)
 		{
@@ -399,7 +401,14 @@ void Game::update()
 	}
 	
 	
+	if (player.getComponent<LifeOfPlayer>().hp <= 0)
+	{
 		
+		player.getComponent<LifeOfPlayer>().life--;
+		player.getComponent<LifeOfPlayer>().hp = 100;
+		type = Lose;
+		
+	}
 };
 
 void Game::Game_start()
@@ -434,18 +443,7 @@ void Game::Game_start()
 	{
 		itemManager.entities[i]->destroy();
 	}
-	/*while(itemManager.entities.size()<4)
-	{
-		std::string f;
-		if (itemManager.entities.size() % 2 == 0) f = "lightning.png";
-		else f = "heart.png";
-		int a = rand() % 1000;
-		int b = rand() % 1000;
-		auto& item(itemManager.addEntity());
-		item.addComponent<TransformComponent>(a, b);
-		item.addComponent<SpriteComponent>(f.c_str(), 32, 32);
-		item.addComponent<ColliderComponent>(f.erase(f.find('.', 3)).c_str());
-	}*/
+	
 	player.getComponent<TransformComponent>().velocity.x = 0;
 	player.getComponent<TransformComponent>().velocity.y = 0;
 	player.getComponent<TransformComponent>().veloc_of_map.x = 0;
@@ -1009,12 +1007,14 @@ void Game::GameLose()
 	SDL_DestroyTexture(tex2);
 	SDL_DestroyTexture(arrow);
 	SDL_DestroyTexture(point);
+
 	if (event.type == SDL_KEYUP)
 	{
+		type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
 		if (event.key.keysym.sym == SDLK_j)
 		{
 			Die = 0;
-			type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
+			
 			if (type == Start)
 			{
 				if (read == 0)
@@ -1120,24 +1120,24 @@ void Game::HandleEvent() {
 	case SDL_QUIT:
 		isRunning = 0;
 		break;
-	case SDL_MOUSEBUTTONUP:
-	{
-		
-		read = 0;
-		if (event.button.clicks == 1 && event.button.x >= 540 && event.button.x<=727 && event.button.y >= 541 && event.button.y<=610 && type == Start)
-		{
-			type = Running;
+	////case SDL_MOUSEBUTTONUP:
+	////{
+	////	
+	////	read = 0;
+	////	/*if (event.button.clicks == 1 && event.button.x >= 540 && event.button.x<=727 && event.button.y >= 541 && event.button.y<=610 && type == Start)
+	////	{
+	////		type = Running;
 
-		}
-		else if (event.button.clicks == 1 && event.button.x >= 556 && event.button.x <= 712 && event.button.y >= 704 && event.button.y <= 768 && type == Start)
-		{
-			type = Store;
+	////	}
+	////	else if (event.button.clicks == 1 && event.button.x >= 556 && event.button.x <= 712 && event.button.y >= 704 && event.button.y <= 768 && type == Start)
+	////	{
+	////		type = Store;
 
-		}
+	////	}*/
 
 
-		break;
-	}
+	////	break;
+	//}
 	case SDL_KEYUP:
 	{
 		if (event.key.keysym.sym == SDLK_ESCAPE&&type == Running)
