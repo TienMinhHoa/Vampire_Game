@@ -9,8 +9,9 @@ private:
 	int coin;
 	int price;
 	SDL_Texture* tex;
+	SDL_Texture* tex2;
 	std::string tmp;
-	SDL_Rect dest;
+	SDL_Rect dest,Coin_des;
 public:
 	
 	Coin()
@@ -27,7 +28,8 @@ public:
 	}
 	void init() override
 	{
-		
+		tex2 = texturemanager::LoadTexture("UI/coin_bag.png");
+		Coin_des = { 950,50,32,32 };
 	};
 	void update() override
 	{
@@ -42,7 +44,7 @@ public:
 				cnt++;
 			}
 		}
-		dest = { 900,100,20*cnt,20 };
+		dest = { 1000,50,20*cnt,20 };
 		tmp = std::to_string(coin);
 		SDL_Color color = { 255,255,255 };
 		tex = texturemanager::LoadTextureFromFont("fonts/KO.ttf",color, tmp.c_str());
@@ -50,6 +52,7 @@ public:
 	void draw() override
 	{
 		texturemanager::write(tex, dest);
+		SDL_RenderCopy(Game::renderer, tex2, NULL, &Coin_des);
 	};
 	void colect_Coin()
 	{

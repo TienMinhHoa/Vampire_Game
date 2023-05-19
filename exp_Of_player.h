@@ -57,14 +57,8 @@ public:
 		texturemanager::Draw(tex, srcRect, destRect);
 		int a = (Game::clock / 1000);
 		int b = a/60;
-		/*if (double((Game::clock / 1000) % 60) == 0)
-		{
-			b = 1;
-			this->tmp += b;
-			b = 0;
-		}*/
 		std::string tmp = std::to_string(b) + " : " + std::to_string(a%60);
-		SDL_Rect dest = { 650,100,60,25 };
+		SDL_Rect dest = { 650,50,60,25 };
 		SDL_Color color = { 255,255,255 };
 		SDL_Texture* tex = texturemanager::LoadTextureFromFont("fonts/KO.ttf", color, tmp.c_str());
 		texturemanager::write(tex, dest);
