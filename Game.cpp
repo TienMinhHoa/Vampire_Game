@@ -1052,11 +1052,10 @@ void Game::gameSaved()
 
 	{
 		std::fstream file_write("saved.txt");
-		std::fstream file_read("saved.txt");
+
 
 		//
-		int n;
-		file_read >> n;
+
 
 		file_write << Money << " ";
 		//save the gold
@@ -1082,10 +1081,9 @@ void Game::gameSaved()
 		//
 		file_write << player.getComponent<LifeOfPlayer>().life;
 		//saved the amount of life
-		file_read.close();
 		file_write.close();
 
-		saved = 1;
+
 	}
 }
 
