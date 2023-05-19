@@ -422,7 +422,6 @@ void Game::Game_start()
 	player.getComponent<LifeOfPlayer>().maxhp = player.getComponent<LifeOfPlayer>().hp;
 	player.getComponent<exp_Of_player>().maxExp = 100;
 	player.getComponent<exp_Of_player>().exp = 0;
-	std::cout << player.getComponent<Shot_02>().amount << " ";
 	Money += player.getComponent<Coin>().getCoin();
 	player.getComponent<Coin>().setCoin(0);
 	clock = 0;
@@ -1109,8 +1108,9 @@ void Game::setTime()
 	if (type != Running)
 	{
 		rtime = SDL_GetTicks() - clock;
+		std::cout << rtime << std::endl << "clock " << clock << std::endl;
 	}
-	clock = SDL_GetTicks() - rtime;
+	else clock = SDL_GetTicks() - rtime;
 }
 
 

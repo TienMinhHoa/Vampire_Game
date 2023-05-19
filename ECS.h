@@ -16,7 +16,7 @@ inline ComponentID getComponentTypeID() {
 }
 
 
-template<typename T> inline ComponentID getComponentTypeID() noexcept
+template<typename T> inline ComponentID getComponentTypeID() /*noexcept*/
 {
 	static ComponentID typeID = getComponentTypeID();
 	return typeID;
