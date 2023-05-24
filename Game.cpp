@@ -1010,9 +1010,10 @@ void Game::GameLose()
 
 	if (event.type == SDL_KEYUP)
 	{
-		type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
+		
 		if (event.key.keysym.sym == SDLK_j)
 		{
+			type = (player.getComponent<LifeOfPlayer>().life > 0) ? Running : Start;
 			Die = 0;
 			
 			if (type == Start)
