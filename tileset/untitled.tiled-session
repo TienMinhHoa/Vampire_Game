@@ -5,8 +5,8 @@
     },
     "activeFile": "hoa/final_map.tmx",
     "expandedProjectPaths": [
-        "hoa",
-        "."
+        ".",
+        "hoa"
     ],
     "fileStates": {
         "1.tsx": {
@@ -80,8 +80,8 @@
             "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1585,
-                "y": 631
+                "x": 1583,
+                "y": 629
             }
         }
     },
